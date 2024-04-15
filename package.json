@@ -11,9 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "4.19.2",
-    "jsonwebtoken": "^9.0.2"
+    "jose": "5.2.4",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.0.7"
   },
   "devDependencies": {
     "nodemon": "3.1.0"

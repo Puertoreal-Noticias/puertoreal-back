@@ -1,17 +1,23 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import accountRouter from "./routes/account.js";
 import authRouter from "./routes/auth.js";
+import authToken from "./routes/authToken.js";
+import authSession from "./routes/authSession.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const expressApp = express();
-
+expressApp.use(cookieParser());
 expressApp.use(express.json());
 expressApp.use(express.text());
 expressApp.use("/account", accountRouter);
 expressApp.use("/auth", authRouter);
+
+expressApp.use("/authToken", authToken);
+expressApp.use("/authSession", authSession);
 
 expressApp.listen(PORT, () => {
   console.log(`Servidor levantado en el puerto, ${PORT}`);
