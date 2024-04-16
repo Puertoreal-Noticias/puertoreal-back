@@ -20,6 +20,8 @@
     "express": "4.19.2",
     "jose": "5.2.4",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.5.0",
+    "mongoose": "8.3.1",
     "nanoid": "^5.0.7"
   },
   "devDependencies": {
