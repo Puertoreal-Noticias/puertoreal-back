@@ -78,24 +78,4 @@ accountRouter.delete("/:guid", async (req, res) => {
     return res.sendStatus(500); // Devuelve un error 500 si algo sale mal
   }
 });
-
-// Eliminar una cuenta
-// accountRouter.delete("/:guid", async (req, res) => {
-//   const guid = req.params.guid;
-//   const user = await userModel.findById(guid).exec();
-
-//   if (!user) {
-//     console.log("HA ENTRADO MAL?");
-//     return res.sendStatus(404);
-//   }
-
-//   try {
-//     await user.remove();
-//     return res.send("Usuario eliminado");
-//   } catch (error) {
-//     console.error(error);
-//     return res.sendStatus(500); // Devuelve un error 500 si algo sale mal
-//   }
-// });
-
 export default accountRouter;
