@@ -1,5 +1,4 @@
 import express from "express";
-import { USERS_BBDD } from "../bbdd.js";
 import userModel from "../schemas/user-schema.js";
 
 const accountRouter = express.Router();
@@ -51,6 +50,7 @@ accountRouter.patch("/:guid", async (req, res) => {
     return res.sendStatus(400);
   }
   if (!user) {
+    console.log(user);
     return res.sendStatus(404);
   }
   // user.

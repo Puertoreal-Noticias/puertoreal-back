@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.js";
 import authToken from "./routes/authToken.js";
 import authSession from "./routes/authSession.js";
 import mongoose from "mongoose";
+import newsRouter from "./routes/noticias.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
@@ -19,6 +20,7 @@ expressApp.use("/auth", authRouter);
 expressApp.use("/authToken", authToken);
 expressApp.use("/authSession", authSession);
 
+expressApp.use("/noticias", newsRouter);
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
   expressApp.listen(PORT, () => {
