@@ -14,12 +14,12 @@ newsRouter.get("", async (req, res) => {
 
 // POST /noticias: Crear una nueva noticia.
 newsRouter.post("/create-new", async (req, res) => {
-  let { titulo, contenido, autor } = req.body;
+  let { titulo, contenido, autor, categoria } = req.body;
 
   if (autor === "") {
     autor = undefined;
   }
-  const noticia = new NewsModel({ titulo, contenido, autor });
+  const noticia = new NewsModel({ titulo, contenido, autor, categoria });
 
   noticia
     .save()
@@ -28,12 +28,59 @@ newsRouter.post("/create-new", async (req, res) => {
 });
 
 // GET /noticias/:id: Obtener una noticia específica por su ID.
-newsRouter.get;
+newsRouter.get("/obtener/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!id) return res.status(401).send("No hay id");
+
+  const noticiaSeleccionada = await NewsModel.findById(id).exec();
+
+  if (!noticiaSeleccionada) {
+    return res.sendStatus(400);
+  } else {
+    return res.send(noticiaSeleccionada);
+  }
+});
 
 // PATCH /noticias/:id: Actualizar una noticia específica por su ID.
-newsRouter.patch;
+newsRouter.patch("/modificar/:id", async (req, res) => {
+  const id = req.params.id;
+  const { titulo, contenido, autor, categoria } = req.body;
+  if (!id) return res.status(401).send("No hay id");
+  if (!titulo || !contenido || !autor || !categoria) {
+    return res.status(401).send("No hay ningun dato para modificar");
+  }
+
+  const noticiaModificada = await NewsModel.findById(id).exec();
+
+  if (!noticiaModificada) {
+    return res.sendStatus(400);
+  }
+  noticiaModificada.titulo = titulo;
+  noticiaModificada.contenido = contenido;
+  noticiaModificada.autor = autor;
+  noticiaModificada.categoria = categoria;
+
+  await noticiaModificada.save();
+  return res.send("Noticia modificada");
+});
 
 // DELETE /noticias/:id: Eliminar una noticia específica por su ID.
-newsRouter.delete;
+newsRouter.delete("/eliminar/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const result = await NewsModel.deleteOne({ _id: id }).exec();
+
+    if (result.deletedCount === 0) {
+      console.log("No se encontró el usuario para eliminar");
+      return res.sendStatus(404);
+    }
+
+    return res.send("Usuario eliminado");
+  } catch (error) {
+    console.error(error);
+    return res.sendStatus(500); // Devuelve un error 500 si algo sale mal
+  }
+});
 
 export default newsRouter;

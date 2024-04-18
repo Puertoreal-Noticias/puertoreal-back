@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const NewsSchema = mongoose.Schema({
   titulo: String,
   contenido: String,
+  categoria: String,
   fecha_publicacion: Date,
   autor: { type: String, default: "Equipo editorial" },
   imagenPrincipal: { type: mongoose.Schema.Types.ObjectId, ref: "Image" },

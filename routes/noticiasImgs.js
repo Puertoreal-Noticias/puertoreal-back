@@ -1,12 +1,18 @@
 import express from "express";
 import multer from "multer";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import { NewsModel, ImageModel } from "../schemas/noticias-schema.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const imagesRouter = express.Router();
 
 // Configura multer para guardar las imágenes subidas en la carpeta 'uploads'
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "../uploads/");
+    cb(null, path.join(__dirname, "../uploads/"));
   },
   filename: function (req, file, cb) {
     cb(null, new Date().toISOString() + file.originalname);
