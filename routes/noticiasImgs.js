@@ -1,55 +1,86 @@
 import express from "express";
 import multer from "multer";
-import path, { dirname } from "path";
+import { ImageModel, NewsModel } from "../schemas/noticias-schema.js";
+import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
-import { NewsModel, ImageModel } from "../schemas/noticias-schema.js";
 
+const imagesRouter = express();
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
+const uploadFolder = path.join(__dirname, "../uploads");
 
-const imagesRouter = express.Router();
-
-// Configura multer para guardar las imágenes subidas en la carpeta 'uploads'
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../uploads/"));
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date().toISOString() + file.originalname);
-  },
+// Verifica si la carpeta de uploads existe y la crea si no existe
+fs.access(uploadFolder, (error) => {
+  if (error) {
+    console.log("La carpeta de uploads no existe. Creándola...");
+    fs.mkdir(uploadFolder, (error) => {
+      if (error) {
+        console.error("Error al crear la carpeta de uploads:", error);
+      } else {
+        console.log("Carpeta de uploads creada con éxito.");
+      }
+    });
+  }
 });
 
-const upload = multer({ storage: storage });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadFolder);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage });
 
-// Ruta para subir imágenes
-imagesRouter.post(
-  "/upload-image/:newsId",
-  upload.single("image"),
-  async (req, res) => {
-    const { newsId } = req.params;
+imagesRouter.get("/obtener", async (req, res) => {
+  try {
+    const imgs = await ImageModel.find();
+    res.status(200).json(imgs);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
-    // Comprueba si la noticia existe
-    const noticia = await NewsModel.findById(newsId);
-    if (!noticia) {
+imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
+  // Obtiene la ID de la noticia de los parámetros de la ruta
+  const newsId = req.params.id;
+
+  try {
+    // Busca la noticia con la ID especificada
+    const news = await NewsModel.findById(newsId);
+
+    // Si la noticia no existe, retorna un error
+    if (!news) {
       return res.status(404).send("Noticia no encontrada");
     }
 
-    // Crea una nueva imagen y asocia la noticia
-    const newImage = new ImageModel({
+    // Crea un nuevo documento ImageModel con los detalles de la imagen
+    const image = new ImageModel({
       imagePath: req.file.path,
       newsId: newsId,
     });
-    await newImage.save();
 
-    // Añade la imagen a la noticia
-    noticia.imagenes.push(newImage._id);
-    await noticia.save();
+    // Guarda la nueva imagen en la base de datos
+    const savedImage = await image.save();
 
-    res.status(200).send("Imagen subida y asociada a la noticia");
+    // Si la noticia no tiene una imagen principal, establece la nueva imagen como la imagen principal
+    if (!news.imagenPrincipal) {
+      news.imagenPrincipal = savedImage._id;
+      await news.save();
+    } else {
+      // Si la noticia ya tiene una imagen principal, agrega la nueva imagen al array de imagenes
+      news.imagenes.push(savedImage._id);
+      await news.save();
+    }
+
+    // Envía los detalles de la nueva imagen guardada en la respuesta
+    res.status(201).json(savedImage);
+  } catch (error) {
+    res.status(500).send(error);
   }
-);
+});
 
-// GET /noticias/:id/imagenes: Obtener todas las imágenes de una noticia específica.
-
-// DELETE /noticias/:id/imagenes/:imagenId: Eliminar una imagen específica de una notici
+// Resto de tu código...
 export default imagesRouter;
