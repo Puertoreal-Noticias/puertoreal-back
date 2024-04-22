@@ -1,6 +1,8 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import cors from "cors"; // Asegúrate de añadir esta línea
+
 import accountRouter from "./routes/account.js";
 import authRouter from "./routes/auth.js";
 import authToken from "./routes/authToken.js";
@@ -12,15 +14,21 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const expressApp = express();
+// Sirve imágenes estáticas desde el directorio 'uploads'
+expressApp.use("/uploads", express.static("uploads"));
+
+expressApp.use(cors()); // Añade esto para permitir solicitudes CORS desde cualquier origen
+
+// otros middlewares...
 expressApp.use(cookieParser());
 expressApp.use(express.json());
 expressApp.use(express.text());
+
+// tus rutas...
 expressApp.use("/account", accountRouter);
 expressApp.use("/auth", authRouter);
-
 expressApp.use("/authToken", authToken);
 expressApp.use("/authSession", authSession);
-
 expressApp.use("/noticias", newsRouter);
 expressApp.use("/imgs", imagesRouter);
 

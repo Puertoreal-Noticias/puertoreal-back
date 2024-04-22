@@ -3,7 +3,7 @@ import { NewsModel } from "../schemas/noticias-schema.js";
 
 const newsRouter = express.Router();
 // GET /noticias: Obtener todas las noticias.
-newsRouter.get("", async (req, res) => {
+newsRouter.get("/obtener", async (req, res) => {
   try {
     const noticias = await NewsModel.find();
     res.status(200).json(noticias);
@@ -76,7 +76,7 @@ newsRouter.delete("/eliminar/:id", async (req, res) => {
       return res.sendStatus(404);
     }
 
-    return res.send("Usuario eliminado");
+    return res.send("Noticia eliminado");
   } catch (error) {
     console.error(error);
     return res.sendStatus(500); // Devuelve un error 500 si algo sale mal

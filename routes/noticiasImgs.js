@@ -83,4 +83,56 @@ imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
 });
 
 // Resto de tu código...
+
+// Eliminar
+
+imagesRouter.delete("/delete/:id", async (req, res) => {
+  try {
+    const imageId = req.params.id;
+    const result = await ImageModel.deleteOne({ _id: imageId });
+    if (result.deletedCount === 0) {
+      return res.status(404).send("Imagen no encontrada");
+    }
+    res.status(200).send("Imagen eliminada con éxito");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+});
+
+// Actualizar
+
+imagesRouter.put("/update/:id", upload.single("imagen"), async (req, res) => {
+  try {
+    const imageId = req.params.id;
+    const image = await ImageModel.findById(imageId);
+    if (!image) {
+      return res.status(404).send("Imagen no encontrada");
+    }
+    image.imagePath = req.file.path;
+    const updatedImage = await image.save();
+    res.status(200).json(updatedImage);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// Imagen especifica
+
+imagesRouter.get("/obtener/:id", async (req, res) => {
+  try {
+    const imageId = req.params.id;
+    const image = await ImageModel.findById(imageId);
+    if (!image) {
+      return res.status(404).send("Imagen no encontrada");
+    }
+    // Extraer el nombre del archivo de image.imagePath
+    const filename = image.imagePath.split("\\").pop();
+    // Modificar la respuesta para devolver la URL de la imagen
+    res.status(200).json({ url: `http://localhost:3000/uploads/${filename}` });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 export default imagesRouter;
