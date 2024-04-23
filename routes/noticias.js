@@ -11,6 +11,32 @@ newsRouter.get("/obtener", async (req, res) => {
     res.status(500).send(err);
   }
 });
+// GET /noticias/:id: Obtener una noticia específica por su ID.
+newsRouter.get("/obtener/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!id) return res.status(401).send("No hay id");
+
+  const noticiaSeleccionada = await NewsModel.findById(id).exec();
+
+  if (!noticiaSeleccionada) {
+    return res.sendStatus(400);
+  } else {
+    return res.send(noticiaSeleccionada);
+  }
+});
+
+// GET para filtrar por la categoria que le pasemos
+
+// GET para filtrar por la categoria que le pasemos
+newsRouter.get("/filtrar/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  try {
+    const noticias = await NewsModel.find({ categoria: categoria });
+    res.status(200).json(noticias);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 // POST /noticias: Crear una nueva noticia.
 newsRouter.post("/create-new", async (req, res) => {
@@ -25,20 +51,6 @@ newsRouter.post("/create-new", async (req, res) => {
     .save()
     .then(() => res.status(201).send("Noticia creada"))
     .catch((err) => res.status(500).send(err));
-});
-
-// GET /noticias/:id: Obtener una noticia específica por su ID.
-newsRouter.get("/obtener/:id", async (req, res) => {
-  const id = req.params.id;
-  if (!id) return res.status(401).send("No hay id");
-
-  const noticiaSeleccionada = await NewsModel.findById(id).exec();
-
-  if (!noticiaSeleccionada) {
-    return res.sendStatus(400);
-  } else {
-    return res.send(noticiaSeleccionada);
-  }
 });
 
 // PATCH /noticias/:id: Actualizar una noticia específica por su ID.
