@@ -25,7 +25,38 @@ newsRouter.get("/obtener/:id", async (req, res) => {
   }
 });
 
-// GET para filtrar por la categoria que le pasemos
+newsRouter.get("/obtener/first/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  try {
+    const noticia = await NewsModel.findOne({ categoria }).sort({
+      fecha_publicacion: -1,
+    });
+    // Ahora 'noticia' contiene la noticia más reciente de la categoría solicitada
+    console.log(noticia);
+    res.status(200).json(noticia);
+  } catch (error) {
+    // Manejar error
+    res.status(500).send(error);
+  }
+});
+
+newsRouter.get("/obtener/excepto-ultimo/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  try {
+    const ultimaNoticia = await NewsModel.findOne({ categoria }).sort({
+      fecha_publicacion: -1,
+    });
+    const otrasNoticias = await NewsModel.find({
+      categoria,
+      fecha_publicacion: { $ne: ultimaNoticia.fecha_publicacion },
+    }).sort({ fecha_publicacion: -1 });
+    // Ahora 'otrasNoticias' contiene todas las noticias excepto la más reciente de la categoría solicitada
+    res.status(200).json(otrasNoticias);
+  } catch (error) {
+    // Manejar error
+    res.status(500).send(error);
+  }
+});
 
 // GET para filtrar por la categoria que le pasemos
 newsRouter.get("/filtrar/:categoria", async (req, res) => {
@@ -45,7 +76,13 @@ newsRouter.post("/create-new", async (req, res) => {
   if (autor === "") {
     autor = undefined;
   }
-  const noticia = new NewsModel({ titulo, contenido, autor, categoria });
+  const noticia = new NewsModel({
+    titulo,
+    contenido,
+    autor,
+    categoria,
+    fecha_publicacion: new Date(),
+  });
 
   noticia
     .save()

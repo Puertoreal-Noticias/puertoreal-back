@@ -4,7 +4,7 @@ const NewsSchema = mongoose.Schema({
   titulo: String,
   contenido: String,
   categoria: String,
-  fecha_publicacion: Date,
+  fecha_publicacion: Date, // Aquí solo especifica el tipo de dato
   autor: { type: String, default: "Equipo editorial" },
   imagenPrincipal: { type: mongoose.Schema.Types.ObjectId, ref: "Image" },
   imagenes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Image" }],
