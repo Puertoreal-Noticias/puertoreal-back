@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const NewsSchema = mongoose.Schema({
   titulo: String,
+  subtitulo: String,
   contenido: String,
   categoria: String,
   fecha_publicacion: Date, // Aquí solo especifica el tipo de dato
