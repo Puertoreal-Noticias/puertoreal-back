@@ -1,16 +1,25 @@
 import express from "express";
 import { NewsModel } from "../schemas/noticias-schema.js";
-
+import { limitarNoticias } from "../helpers/limit-query-news.js";
 const newsRouter = express.Router();
+// GET /noticias: Obtener todas las noticias.
 // GET /noticias: Obtener todas las noticias.
 newsRouter.get("/obtener", async (req, res) => {
   try {
-    const noticias = await NewsModel.find();
-    res.status(200).json(noticias);
+    const noticias = await NewsModel.find().sort({
+      fecha_publicacion: -1,
+    });
+    // Obtén el parámetro "limit" de la consulta
+    const limit = parseInt(req.query.limit) || noticias.length; // Por defecto, muestra todas las noticias si no se proporciona un límite
+
+    // Llama a la función para obtener las noticias limitadas
+    const noticiasLimitadas = limitarNoticias(noticias, limit);
+    res.status(200).json(noticiasLimitadas);
   } catch (err) {
     res.status(500).send(err);
   }
 });
+
 // GET /noticias/:id: Obtener una noticia específica por su ID.
 newsRouter.get("/obtener/:id", async (req, res) => {
   const id = req.params.id;
@@ -50,8 +59,12 @@ newsRouter.get("/obtener/excepto-ultimo/:categoria", async (req, res) => {
       categoria,
       fecha_publicacion: { $ne: ultimaNoticia.fecha_publicacion },
     }).sort({ fecha_publicacion: -1 });
+    const limit = parseInt(req.query.limit) || otrasNoticias.length; // Por defecto, muestra todas las noticias si no se proporciona un límite
+
+    // Llama a la función para obtener las noticias limitadas
+    const noticiasLimitadas = limitarNoticias(otrasNoticias, limit);
     // Ahora 'otrasNoticias' contiene todas las noticias excepto la más reciente de la categoría solicitada
-    res.status(200).json(otrasNoticias);
+    res.status(200).json(noticiasLimitadas);
   } catch (error) {
     // Manejar error
     res.status(500).send(error);
