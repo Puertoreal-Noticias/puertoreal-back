@@ -4,6 +4,7 @@ const NewsSchema = mongoose.Schema({
   titulo: String,
   subtitulo: String,
   contenido: String,
+  destacado: String,
   categoria: String,
   fecha_publicacion: Date, // Aquí solo especifica el tipo de dato
   autor: { type: String, default: "Equipo editorial" },

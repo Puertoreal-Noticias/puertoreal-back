@@ -84,7 +84,7 @@ newsRouter.get("/filtrar/:categoria", async (req, res) => {
 
 // POST /noticias: Crear una nueva noticia.
 newsRouter.post("/create-new", async (req, res) => {
-  let { titulo, contenido, autor, categoria, subtitulo } = req.body;
+  let { titulo, contenido, autor, categoria, subtitulo, destacado } = req.body;
 
   if (autor === "") {
     autor = undefined;
@@ -95,6 +95,7 @@ newsRouter.post("/create-new", async (req, res) => {
     contenido,
     autor,
     categoria,
+    destacado,
     fecha_publicacion: new Date(),
   });
 
