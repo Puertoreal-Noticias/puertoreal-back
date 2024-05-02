@@ -2,19 +2,43 @@ import express from "express";
 import { NewsModel } from "../schemas/noticias-schema.js";
 import { limitarNoticias } from "../helpers/limit-query-news.js";
 const newsRouter = express.Router();
-// GET /noticias: Obtener todas las noticias.
-// GET /noticias: Obtener todas las noticias.
+// GET /noticias: Obtener todas las noticias. menos destacado
 newsRouter.get("/obtener", async (req, res) => {
   try {
-    const noticias = await NewsModel.find().sort({
+    const noticias = await NewsModel.find({ destacado: { $ne: "si" } }).sort({
       fecha_publicacion: -1,
     });
-    // Obtén el parámetro "limit" de la consulta
-    const limit = parseInt(req.query.limit) || noticias.length; // Por defecto, muestra todas las noticias si no se proporciona un límite
-
-    // Llama a la función para obtener las noticias limitadas
+    const limit = parseInt(req.query.limit) || noticias.length;
     const noticiasLimitadas = limitarNoticias(noticias, limit);
     res.status(200).json(noticiasLimitadas);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+// GET obtener noticia destacada
+newsRouter.get("/obtener/destacada", async (req, res) => {
+  try {
+    const noticias = await NewsModel.find({ destacado: "si" });
+    if (noticias.length > 0) {
+      res.status(200).json(noticias[0]);
+    } else {
+      res.status(404).send("No se encontró ninguna noticia destacada");
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+newsRouter.get("/filtrar/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  try {
+    const noticias = await NewsModel.find({
+      categoria: categoria,
+      destacado: { $ne: "si" },
+    }).sort({
+      fecha_publicacion: -1,
+    });
+    res.status(200).json(noticias);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -68,17 +92,6 @@ newsRouter.get("/obtener/excepto-ultimo/:categoria", async (req, res) => {
   } catch (error) {
     // Manejar error
     res.status(500).send(error);
-  }
-});
-
-// GET para filtrar por la categoria que le pasemos
-newsRouter.get("/filtrar/:categoria", async (req, res) => {
-  const categoria = req.params.categoria;
-  try {
-    const noticias = await NewsModel.find({ categoria: categoria });
-    res.status(200).json(noticias);
-  } catch (err) {
-    res.status(500).send(err);
   }
 });
 
