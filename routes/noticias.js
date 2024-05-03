@@ -73,6 +73,22 @@ newsRouter.get("/obtener/first/:categoria", async (req, res) => {
   }
 });
 
+newsRouter.get("/obtener/random/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  try {
+    const noticias = await NewsModel.aggregate([
+      { $match: { categoria } },
+      { $sample: { size: 3 } },
+    ]);
+    // Ahora 'noticias' contiene hasta 3 noticias aleatorias de la categoría solicitada
+    console.log(noticias);
+    res.status(200).json(noticias);
+  } catch (error) {
+    // Manejar error
+    res.status(500).send(error);
+  }
+});
+
 newsRouter.get("/obtener/excepto-ultimo/:categoria", async (req, res) => {
   const categoria = req.params.categoria;
   try {
