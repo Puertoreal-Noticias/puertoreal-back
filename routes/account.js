@@ -21,23 +21,14 @@ accountRouter.get("/:guid", async (req, res) => {
 accountRouter.post("", async (req, res) => {
   const { guid, name } = req.body;
   const user = await userModel.findById(guid).exec();
-
-  // const user = USERS_BBDD.find((user) => {
-  //   return user.guid === guid;
-  // });
   if (!guid || !name) {
     return res.sendStatus(400);
   }
-
   if (user) {
     return res.status(409).send("Usuario ya registrado");
   }
   const newUser = new userModel({ _id: guid, name });
   await newUser.save();
-  // USERS_BBDD.push({
-  //   guid,
-  //   name,
-  // });
   return res.send("Usuario registrado");
 });
 // Actualizar una cuenta
