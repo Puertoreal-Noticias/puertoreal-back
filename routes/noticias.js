@@ -151,6 +151,7 @@ newsRouter.patch("/modificar/:id", async (req, res) => {
   noticiaModificada.titulo = titulo;
   noticiaModificada.contenido = contenido;
   noticiaModificada.autor = autor;
+  noticiaModificada.subtitulo = subtitulo;
   noticiaModificada.categoria = categoria;
 
   await noticiaModificada.save();
