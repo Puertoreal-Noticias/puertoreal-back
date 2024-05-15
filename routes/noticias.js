@@ -137,9 +137,9 @@ newsRouter.post("/create-new", async (req, res) => {
 // PATCH /noticias/:id: Actualizar una noticia específica por su ID.
 newsRouter.patch("/modificar/:id", async (req, res) => {
   const id = req.params.id;
-  const { titulo, contenido, autor, categoria } = req.body;
+  const { titulo, contenido, autor, categoria, subtitulo } = req.body;
   if (!id) return res.status(401).send("No hay id");
-  if (!titulo || !contenido || !autor || !categoria) {
+  if (!titulo || !contenido || !autor || !categoria || !subtitulo) {
     return res.status(401).send("No hay ningun dato para modificar");
   }
 
