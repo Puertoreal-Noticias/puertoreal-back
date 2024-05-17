@@ -130,9 +130,30 @@ newsRouter.post("/create-new", async (req, res) => {
 
   noticia
     .save()
-    .then(() => res.status(201).send("Noticia creada"))
+    .then(() => res.status(201).json(noticia))
     .catch((err) => res.status(500).send(err));
 });
+// newsRouter.post("/create-new", async (req, res) => {
+//   let { titulo, contenido, autor, categoria, subtitulo, destacado } = req.body;
+
+//   if (autor === "") {
+//     autor = undefined;
+//   }
+//   const noticia = new NewsModel({
+//     titulo,
+//     subtitulo,
+//     contenido,
+//     autor,
+//     categoria,
+//     destacado,
+//     fecha_publicacion: new Date(),
+//   });
+
+//   noticia
+//     .save()
+//     .then((noticiaCreada) => res.status(201).json(noticiaCreada)) // Devuelve la noticia creada
+//     .catch((err) => res.status(500).send(err));
+// });
 
 // PATCH /noticias/:id: Actualizar una noticia específica por su ID.
 newsRouter.patch("/modificar/:id", async (req, res) => {

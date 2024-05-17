@@ -58,9 +58,51 @@ imagesRouter.get("/obtener/:id", async (req, res) => {
   }
 });
 
+// imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
+//   // Obtiene la ID de la noticia de los parámetros de la ruta
+//   const newsId = req.params.id;
+
+//   try {
+//     // Busca la noticia con la ID especificada
+//     const news = await NewsModel.findById(newsId);
+
+//     // Si la noticia no existe, retorna un error
+//     if (!news) {
+//       return res.status(404).send("Noticia no encontrada");
+//     }
+
+//     // Crea un nuevo documento ImageModel con los detalles de la imagen
+//     const image = new ImageModel({
+//       imagePath: req.file.path,
+//       newsId: newsId,
+//     });
+
+//     // Guarda la nueva imagen en la base de datos
+//     const savedImage = await image.save();
+
+//     // Si la noticia no tiene una imagen principal, establece la nueva imagen como la imagen principal
+//     if (!news.imagenPrincipal) {
+//       news.imagenPrincipal = savedImage._id;
+//       await news.save();
+//     } else {
+//       // Si la noticia ya tiene una imagen principal, agrega la nueva imagen al array de imagenes
+//       news.imagenes.push(savedImage._id);
+//       await news.save();
+//     }
+
+//     // Envía los detalles de la nueva imagen guardada en la respuesta
+//     res.status(201).json(savedImage);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
+
+// Eliminar
+
 imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
   // Obtiene la ID de la noticia de los parámetros de la ruta
   const newsId = req.params.id;
+  console.log("newsId:", newsId); // Verifica la ID de la noticia
 
   try {
     // Busca la noticia con la ID especificada
@@ -71,6 +113,8 @@ imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
       return res.status(404).send("Noticia no encontrada");
     }
 
+    console.log("req.file.path:", req.file.path); // Verifica la ruta de la imagen
+
     // Crea un nuevo documento ImageModel con los detalles de la imagen
     const image = new ImageModel({
       imagePath: req.file.path,
@@ -79,6 +123,7 @@ imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
 
     // Guarda la nueva imagen en la base de datos
     const savedImage = await image.save();
+    console.log("savedImage:", savedImage); // Verifica la imagen guardada
 
     // Si la noticia no tiene una imagen principal, establece la nueva imagen como la imagen principal
     if (!news.imagenPrincipal) {
@@ -90,14 +135,15 @@ imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
       await news.save();
     }
 
+    console.log("news:", news); // Verifica la noticia guardada
+
     // Envía los detalles de la nueva imagen guardada en la respuesta
     res.status(201).json(savedImage);
   } catch (error) {
+    console.error("Error:", error); // Captura y registra cualquier error
     res.status(500).send(error);
   }
 });
-
-// Eliminar
 
 imagesRouter.delete("/delete/:id", async (req, res) => {
   try {
