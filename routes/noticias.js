@@ -18,9 +18,11 @@ newsRouter.get("/obtener", async (req, res) => {
 // GET obtener noticia destacada
 newsRouter.get("/obtener/destacada", async (req, res) => {
   try {
-    const noticias = await NewsModel.find({ destacado: "si" });
-    if (noticias.length > 0) {
-      res.status(200).json(noticias[0]);
+    const noticia = await NewsModel.findOne({ destacado: "si" }).sort({
+      fecha_publicacion: -1,
+    });
+    if (noticia) {
+      res.status(200).json(noticia);
     } else {
       res.status(404).send("No se encontró ninguna noticia destacada");
     }
@@ -29,21 +31,31 @@ newsRouter.get("/obtener/destacada", async (req, res) => {
   }
 });
 
-newsRouter.get("/filtrar/:categoria", async (req, res) => {
-  const categoria = req.params.categoria;
+// Obtener todo lo mas recientes incluyendo destacados y no destacados
+newsRouter.get("/obtener/recientes", async (req, res) => {
   try {
-    const noticias = await NewsModel.find({
-      categoria: categoria,
-      destacado: { $ne: "si" },
-    }).sort({
+    const noticias = await NewsModel.find({}).sort({
       fecha_publicacion: -1,
     });
+    const limit = parseInt(req.query.limit) || noticias.length;
+    const noticiasLimitadas = limitarNoticias(noticias, limit);
+    res.status(200).json(noticiasLimitadas);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+newsRouter.get("/filtrar/:categoria", async (req, res) => {
+  const categoria = req.params.categoria;
+  const limit = parseInt(req.query.limit) || 0; // Si no se proporciona un límite, devuelve todas las noticias
+  try {
+    const noticias = await NewsModel.find({ categoria: categoria })
+      .sort({ fecha_publicacion: -1 })
+      .limit(limit);
     res.status(200).json(noticias);
   } catch (err) {
     res.status(500).send(err);
   }
 });
-
 // GET /noticias/:id: Obtener una noticia específica por su ID.
 newsRouter.get("/obtener/:id", async (req, res) => {
   const id = req.params.id;
@@ -61,10 +73,13 @@ newsRouter.get("/obtener/:id", async (req, res) => {
 newsRouter.get("/obtener/first/:categoria", async (req, res) => {
   const categoria = req.params.categoria;
   try {
-    const noticia = await NewsModel.findOne({ categoria }).sort({
+    const noticia = await NewsModel.findOne({
+      categoria,
+      destacado: "si",
+    }).sort({
       fecha_publicacion: -1,
     });
-    // Ahora 'noticia' contiene la noticia más reciente de la categoría solicitada
+    // Ahora 'noticia' contiene la noticia más reciente y destacada de la categoría solicitada
     console.log(noticia);
     res.status(200).json(noticia);
   } catch (error) {
@@ -72,7 +87,6 @@ newsRouter.get("/obtener/first/:categoria", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
 newsRouter.get("/obtener/random/:categoria", async (req, res) => {
   const categoria = req.params.categoria;
   try {
@@ -92,11 +106,15 @@ newsRouter.get("/obtener/random/:categoria", async (req, res) => {
 newsRouter.get("/obtener/excepto-ultimo/:categoria", async (req, res) => {
   const categoria = req.params.categoria;
   try {
-    const ultimaNoticia = await NewsModel.findOne({ categoria }).sort({
+    const ultimaNoticia = await NewsModel.findOne({
+      categoria,
+      destacado: "si",
+    }).sort({
       fecha_publicacion: -1,
     });
     const otrasNoticias = await NewsModel.find({
       categoria,
+      destacado: { $ne: "si" },
       fecha_publicacion: { $ne: ultimaNoticia.fecha_publicacion },
     }).sort({ fecha_publicacion: -1 });
     const limit = parseInt(req.query.limit) || otrasNoticias.length; // Por defecto, muestra todas las noticias si no se proporciona un límite
