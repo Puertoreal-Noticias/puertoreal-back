@@ -1,5 +1,5 @@
 import { Router } from "express";
-import checkEmailPassword from "../helpers/check-email-password.js";
+import bcrypt from "bcrypt";
 
 const authRouter = Router();
 
@@ -11,34 +11,54 @@ authRouter.get("/publico", (req, res) => {
 
 // Endpoint autenticado
 
-authRouter.post("/autenticado", (req, res) => {
+authRouter.post("/autenticado", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.sendStatus(400);
   }
   try {
-    const user = checkEmailPassword(email, password);
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      console.log("Usuario no encontrado:", email);
+      return res.sendStatus(404);
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      console.log("Contraseña incorrecta:", password);
+      return res.sendStatus(400);
+    }
 
     return res.send(`Usuario ${user.name} autenticado`);
   } catch (error) {
+    console.log("Error:", error);
     return res.sendStatus(401);
   }
 });
 
-// Endpoint
-// Para administradores
-authRouter.post("/autorizado", (req, res) => {
+authRouter.post("/autorizado", async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.sendStatus(400);
+  }
   try {
-    if (!email || !password) {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      console.log("Usuario no encontrado:", email);
+      return res.sendStatus(404);
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      console.log("Contraseña incorrecta:", password);
       return res.sendStatus(400);
     }
-    const user = checkEmailPassword(email, password);
 
     if (user.role !== "admin") return res.sendStatus(403);
 
-    res.send(`Administrador ${user.name} verificado`);
+    return res.send(`Administrador ${user.name} verificado`);
   } catch (error) {
+    console.log("Error:", error);
     return res.sendStatus(401);
   }
 });

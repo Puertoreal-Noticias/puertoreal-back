@@ -1,6 +1,6 @@
 import express from "express";
 import userModel from "../schemas/user-schema.js";
-
+import bcrypt from "bcrypt";
 const accountRouter = express.Router();
 accountRouter.use((req, res, next) => {
   console.log(req.ip);
@@ -17,19 +17,28 @@ accountRouter.get("/:guid", async (req, res) => {
     return res.send(user);
   }
 });
-// Crear una nueva cuenta a partir de guid y name
-accountRouter.post("", async (req, res) => {
-  const { guid, name } = req.body;
-  const user = await userModel.findById(guid).exec();
-  if (!guid || !name) {
-    return res.sendStatus(400);
+
+accountRouter.post("/", async (req, res) => {
+  const { name, password } = req.body;
+
+  // Verifica si el usuario ya existe
+  const existingUser = await userModel.findOne({ name });
+  if (existingUser) {
+    console.log("El usuario ya existe:", name);
+    return res.status(400).send("El usuario ya existe");
   }
-  if (user) {
-    return res.status(409).send("Usuario ya registrado");
-  }
-  const newUser = new userModel({ _id: guid, name });
-  await newUser.save();
-  return res.send("Usuario registrado");
+
+  // Hashea la contraseña antes de guardarla
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Crea el nuevo usuario
+  const user = new userModel({
+    name,
+    password: hashedPassword,
+  });
+
+  await user.save();
+  return res.send("Usuario creado");
 });
 // Actualizar una cuenta
 accountRouter.patch("/:guid", async (req, res) => {
@@ -52,21 +61,19 @@ accountRouter.patch("/:guid", async (req, res) => {
 });
 
 // Eliminar una cuenta
-accountRouter.delete("/:guid", async (req, res) => {
-  const guid = req.params.guid;
-
+// Eliminar una cuenta
+// Eliminar una cuenta
+accountRouter.delete("/:id", async (req, res) => {
   try {
-    const result = await userModel.deleteOne({ _id: guid }).exec();
-
-    if (result.deletedCount === 0) {
-      console.log("No se encontró el usuario para eliminar");
-      return res.sendStatus(404);
+    const user = await userModel.findOneAndDelete({ _id: req.params.id });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
     }
-
-    return res.send("Usuario eliminado");
+    res.status(200).send({ message: "User deleted successfully" });
   } catch (error) {
     console.error(error);
-    return res.sendStatus(500); // Devuelve un error 500 si algo sale mal
+    res.status(500).send({ error: error.message });
   }
 });
+
 export default accountRouter;
