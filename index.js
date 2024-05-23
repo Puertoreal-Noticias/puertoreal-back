@@ -10,6 +10,8 @@ import authSession from "./routes/authSession.js";
 import mongoose from "mongoose";
 import newsRouter from "./routes/noticias.js";
 import imagesRouter from "./routes/noticiasImgs.js";
+import eventosRouter from "./routes/eventos.js";
+import imagesEventRouter from "./routes/eventosImgs.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
@@ -30,7 +32,9 @@ expressApp.use("/auth", authRouter);
 expressApp.use("/authToken", authToken);
 expressApp.use("/authSession", authSession);
 expressApp.use("/noticias", newsRouter);
+expressApp.use("/event", eventosRouter);
 expressApp.use("/imgs", imagesRouter);
+expressApp.use("/event-imgs", imagesEventRouter);
 
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
@@ -38,11 +42,4 @@ const bootstrap = async () => {
     console.log(`Servidor levantado en el puerto, ${PORT}`);
   });
 };
-// expressApp.post("/cuenta", (req, res) => {
-//   console.log(req.body, "BODY");
-//   console.log(req.query, "query");
-
-//   res.status(200).send(req.body);
-// console.log(req);
-// });
 bootstrap();
