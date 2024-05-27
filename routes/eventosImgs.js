@@ -77,4 +77,22 @@ imagesEventRouter.post(
   }
 );
 
+// Eliminar imagen por id
+imagesEventRouter.delete("/eliminar/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const result = await ImageEventModel.deleteOne({ _id: id }).exec();
+
+    if (result.deletedCount === 0) {
+      console.log("No se encontró la imagen para eliminar");
+      return res.sendStatus(404);
+    }
+
+    return res.send("Imagen eliminada");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 export default imagesEventRouter;
