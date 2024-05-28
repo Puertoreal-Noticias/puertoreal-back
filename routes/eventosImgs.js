@@ -95,4 +95,42 @@ imagesEventRouter.delete("/eliminar/:id", async (req, res) => {
   }
 });
 
+// Actualizar imagen por la id
+
+imagesEventRouter.put(
+  "/modificar/:id",
+  upload.single("imagen"),
+  async (req, res) => {
+    const eventId = req.params.id;
+    try {
+      const evento = await EventModel.findById(eventId);
+      if (!evento) {
+        return res.status(404).send("Evento no encontrado");
+      }
+
+      const image = await ImageEventModel.findOne({ eventId: eventId });
+      if (!image) {
+        return res.status(404).send("Imagen no encontrada");
+      }
+
+      // Elimina la imagen antigua del sistema de archivos
+      const oldImagePath = path.join("uploads", image.imagePath);
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error(`Error al eliminar el archivo de imagen: ${err}`);
+        } else {
+          console.log(`Archivo de imagen ${oldImagePath} eliminado`);
+        }
+      });
+
+      // Actualiza la ruta de la imagen en la base de datos
+      image.imagePath = req.file.path;
+      const updatedImage = await image.save();
+
+      res.status(200).send(updatedImage);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
 export default imagesEventRouter;

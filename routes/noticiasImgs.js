@@ -119,21 +119,43 @@ imagesRouter.delete("/delete/:id", async (req, res) => {
 
 // Actualizar
 
-imagesRouter.put("/update/:id", upload.single("imagen"), async (req, res) => {
-  try {
-    let imageId = req.params.id;
-    let image = await ImageModel.findById(imageId);
-    if (!image) {
-      return res.status(404).send("Imagen no encontrada");
-    }
-    image.imagePath = req.file.path;
-    let updatedImage = await image.save();
-    res.status(200).json(updatedImage);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
+imagesRouter.put(
+  "/actualizar/:id",
+  upload.single("imagen"),
+  async (req, res) => {
+    const noticiaId = req.params.id;
+    console.log(noticiaId);
+    try {
+      const noticia = await NewsModel.findById(noticiaId);
+      if (!noticia) {
+        return res.status(404).send("Noticia no encontrada");
+      }
 
+      const image = await ImageModel.findOne({ newsId: noticiaId });
+      if (!image) {
+        return res.status(404).send("Imagen no encontradaaaaa");
+      }
+
+      // Elimina la imagen antigua del sistema de archivos
+      const oldImagePath = image.imagePath;
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error(`Error al eliminar el archivo de imagen: ${err}`);
+        } else {
+          console.log(`Archivo de imagen ${oldImagePath} eliminado`);
+        }
+      });
+
+      // Actualiza la ruta de la imagen en la base de datos
+      image.imagePath = req.file.path;
+      const updatedImage = await image.save();
+
+      res.status(200).send(updatedImage);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+);
 // Imagen especifica
 
 export default imagesRouter;

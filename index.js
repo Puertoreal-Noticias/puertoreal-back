@@ -33,7 +33,7 @@ expressApp.use("/authToken", authToken);
 expressApp.use("/authSession", authSession);
 expressApp.use("/noticias", newsRouter);
 expressApp.use("/event", eventosRouter);
-expressApp.use("/imgs", imagesRouter);
+expressApp.use("/news-imgs", imagesRouter);
 expressApp.use("/event-imgs", imagesEventRouter);
 
 const bootstrap = async () => {
