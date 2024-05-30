@@ -1,9 +1,9 @@
 import express from "express";
-import multer from "multer";
-import { ImageModel, NewsModel } from "../schemas/noticias-schema.js";
 import fs from "fs";
+import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import { ImageModel, NewsModel } from "../schemas/noticias-schema.js";
 
 const imagesRouter = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -102,6 +102,35 @@ imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+// Añadir imagen relacionada a una noticia
+imagesRouter.post(
+  "/add-img-relacionada/:id",
+  upload.single("imagen"),
+  async (req, res) => {
+    try {
+      const newsId = req.params.id;
+      const news = await NewsModel.findById(newsId);
+      if (!news) {
+        return res.status(404).send("Noticia no encontrada");
+      }
+      const image = new ImageModel({
+        imagePath: req.file.path,
+        newsId: newsId,
+      });
+      const savedImage = await image.save();
+
+      // Añadir la imagen a la lista de imágenes de la noticia
+      news.imagenes.push(savedImage._id);
+      await news.save();
+
+      res.status(201).send(savedImage);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(error);
+    }
+  }
+);
 
 imagesRouter.delete("/delete/:id", async (req, res) => {
   try {
