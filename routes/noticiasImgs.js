@@ -131,7 +131,36 @@ imagesRouter.post(
     }
   }
 );
-
+// Eliminar imagen relacionada a una noticia
+// Eliminar imagen relacionada a una noticia
+// Eliminar imagen relacionada a una noticia
+imagesRouter.delete(
+  "/delete-img-relacionada/:newsId/:imgId",
+  async (req, res) => {
+    try {
+      const newsId = req.params.newsId;
+      const imgId = req.params.imgId;
+      const image = await ImageModel.findById(imgId);
+      if (!image) {
+        return res.status(404).send("Imagen no encontrada");
+      }
+      const news = await NewsModel.findById(newsId);
+      if (!news) {
+        return res.status(404).send("Noticia no encontrada");
+      }
+      news.imagenes = news.imagenes.filter((id) => id.toString() !== imgId);
+      await news.save();
+      const result = await ImageModel.deleteOne({ _id: imgId });
+      if (result.deletedCount === 0) {
+        return res.status(404).send("Imagen no encontrada");
+      }
+      res.status(200).send("Imagen eliminada con éxito");
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  }
+);
 imagesRouter.delete("/delete/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
