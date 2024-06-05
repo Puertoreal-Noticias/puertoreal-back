@@ -16,12 +16,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const expressApp = express();
-expressApp.use((req, res, next) => {
-  if (req.headers["x-forwarded-proto"] !== "https") {
-    return res.redirect(["https://", req.get("Host"), req.url].join(""));
-  }
-  next();
-});
 // Sirve imágenes estáticas desde el directorio 'uploads'
 expressApp.use("/uploads", express.static("uploads"));
 
@@ -42,16 +36,9 @@ expressApp.use("/event", eventosRouter);
 expressApp.use("/news-imgs", imagesRouter);
 expressApp.use("/event-imgs", imagesEventRouter);
 
-const options = {
-  key: fs.readFileSync("path/to/your/private.key"),
-  cert: fs.readFileSync("path/to/your/certificate.crt"),
-};
-
-const server = https.createServer(options, expressApp);
-
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
-  server.listen(PORT, () => {
+  expressApp.listen(PORT, () => {
     console.log(`Servidor levantado en el puerto, ${PORT}`);
   });
 };
