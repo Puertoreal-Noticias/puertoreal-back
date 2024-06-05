@@ -42,9 +42,16 @@ expressApp.use("/event", eventosRouter);
 expressApp.use("/news-imgs", imagesRouter);
 expressApp.use("/event-imgs", imagesEventRouter);
 
+const options = {
+  key: fs.readFileSync("path/to/your/private.key"),
+  cert: fs.readFileSync("path/to/your/certificate.crt"),
+};
+
+const server = https.createServer(options, expressApp);
+
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
-  expressApp.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Servidor levantado en el puerto, ${PORT}`);
   });
 };
