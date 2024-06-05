@@ -16,6 +16,12 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const expressApp = express();
+expressApp.use((req, res, next) => {
+  if (req.headers["x-forwarded-proto"] !== "https") {
+    return res.redirect(["https://", req.get("Host"), req.url].join(""));
+  }
+  next();
+});
 // Sirve imágenes estáticas desde el directorio 'uploads'
 expressApp.use("/uploads", express.static("uploads"));
 
