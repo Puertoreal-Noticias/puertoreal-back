@@ -208,7 +208,7 @@ imagesRouter.put(
       });
 
       // Actualiza la ruta de la imagen en la base de datos
-      image.imagePath = req.file.path;
+      image.imagePath = req.file.filename;
       const updatedImage = await image.save();
 
       res.status(200).send(updatedImage);
