@@ -131,9 +131,7 @@ imagesEventRouter.put(
       image.imagePath = req.file.filename;
       const updatedImage = await image.save();
 
-      res.status(200).json({
-        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
-      });
+      res.status(200).send(updatedImage);
     } catch (error) {
       res.status(500).send(error);
     }
