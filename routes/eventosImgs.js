@@ -44,7 +44,11 @@ imagesEventRouter.get("/obtener/:id", async (req, res) => {
     // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
     // Modificar la respuesta para devolver la URL de la imagen
-    res.status(200).json({ url: `http://localhost:3000/uploads/${filename}` });
+    res
+      .status(200)
+      .json({
+        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
+      });
   } catch (error) {
     res.status(500).send(error);
   }
