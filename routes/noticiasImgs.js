@@ -42,23 +42,81 @@ imagesRouter.get("/obtener", async (req, res) => {
     res.status(500).send(error);
   }
 });
+// imagesRouter.get("/obtener/:id", async (req, res) => {
+//   try {
+//     const imageId = req.params.id;
+//     const image = await ImageModel.findById(imageId);
+//     if (!image) {
+//       return res.status(404).send("Imagen no encontrada");
+//     }
+//     // Extraer el nombre del archivo de image.imagePath
+//     const filename = image.imagePath.split("\\").pop();
+//     // Modificar la respuesta para devolver la URL de la imagen
+//     res.status(200).json({
+//       url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
+//     });
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
+// imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
+//   // Obtiene la ID de la noticia de los parámetros de la ruta
+//   const newsId = req.params.id;
+//   console.log("newsId:", newsId); // Verifica la ID de la noticia
+
+//   try {
+//     // Busca la noticia con la ID especificada
+//     const news = await NewsModel.findById(newsId);
+
+//     // Si la noticia no existe, retorna un error
+//     if (!news) {
+//       return res.status(404).send("Noticia no encontrada");
+//     }
+
+//     console.log("req.file.path:", req.file.path); // Verifica la ruta de la imagen
+
+//     // Crea un nuevo documento ImageModel con los detalles de la imagen
+//     const image = new ImageModel({
+//       imagePath: req.file.filename,
+//       newsId: newsId,
+//     });
+
+//     // Guarda la nueva imagen en la base de datos
+//     const savedImage = await image.save();
+//     console.log("savedImage:", savedImage); // Verifica la imagen guardada
+
+//     res.status(200).json({
+//       url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${savedImage.imagePath}`,
+//     });
+//   } catch (error) {
+//     console.error("Error:", error); // Captura y registra cualquier error
+//     res.status(500).send(error);
+//   }
+// });
 imagesRouter.get("/obtener/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
+    console.log("imageId:", imageId); // Verifica la ID de la imagen
+
     const image = await ImageModel.findById(imageId);
     if (!image) {
       return res.status(404).send("Imagen no encontrada");
     }
+
     // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
+    console.log("filename:", filename); // Verifica el nombre del archivo
+
     // Modificar la respuesta para devolver la URL de la imagen
     res.status(200).json({
       url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
     });
   } catch (error) {
+    console.error("Error:", error); // Captura y registra cualquier error
     res.status(500).send(error);
   }
 });
+
 imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
   // Obtiene la ID de la noticia de los parámetros de la ruta
   const newsId = req.params.id;
@@ -122,8 +180,6 @@ imagesRouter.post(
     }
   }
 );
-// Eliminar imagen relacionada a una noticia
-// Eliminar imagen relacionada a una noticia
 // Eliminar imagen relacionada a una noticia
 imagesRouter.delete(
   "/delete-img-relacionada/:newsId/:imgId",
@@ -196,13 +252,11 @@ imagesRouter.put(
       });
 
       // Actualiza la ruta de la imagen en la base de datos
-      // En lugar de guardar req.file.path, guarda solo req.file.filename
-      image.imagePath = req.file.filename;
+      image.imagePath = req.file.path;
       const updatedImage = await image.save();
 
-      // Cuando construyas la URL de la imagen, añade solo el nombre del archivo al final
       res.status(200).json({
-        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
+        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${savedImage.imagePath}`,
       });
     } catch (error) {
       res.status(500).send(error);
