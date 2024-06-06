@@ -44,11 +44,9 @@ imagesEventRouter.get("/obtener/:id", async (req, res) => {
     // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
     // Modificar la respuesta para devolver la URL de la imagen
-    res
-      .status(200)
-      .json({
-        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
-      });
+    res.status(200).json({
+      url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
+    });
   } catch (error) {
     res.status(500).send(error);
   }
@@ -64,7 +62,7 @@ imagesEventRouter.post(
         return res.status(404).send("Evento no encontrado");
       }
       const newImage = new ImageEventModel({
-        imagePath: req.file.path,
+        imagePath: req.file.filename,
         eventId,
       });
       const savedImageEvent = await newImage.save();
@@ -74,7 +72,9 @@ imagesEventRouter.post(
         await evento.save();
       }
       console.log(evento);
-      res.status(201).send(savedImageEvent);
+      res.status(200).json({
+        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
+      });
     } catch (error) {
       res.status(500).send(error);
     }
@@ -128,10 +128,12 @@ imagesEventRouter.put(
       });
 
       // Actualiza la ruta de la imagen en la base de datos
-      image.imagePath = req.file.path;
+      image.imagePath = req.file.filename;
       const updatedImage = await image.save();
 
-      res.status(200).send(updatedImage);
+      res.status(200).json({
+        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
+      });
     } catch (error) {
       res.status(500).send(error);
     }

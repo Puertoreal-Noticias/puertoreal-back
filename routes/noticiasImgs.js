@@ -196,10 +196,14 @@ imagesRouter.put(
       });
 
       // Actualiza la ruta de la imagen en la base de datos
-      image.imagePath = req.file.path;
+      // En lugar de guardar req.file.path, guarda solo req.file.filename
+      image.imagePath = req.file.filename;
       const updatedImage = await image.save();
 
-      res.status(200).send(updatedImage);
+      // Cuando construyas la URL de la imagen, añade solo el nombre del archivo al final
+      res.status(200).json({
+        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
+      });
     } catch (error) {
       res.status(500).send(error);
     }
