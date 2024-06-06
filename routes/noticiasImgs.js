@@ -96,6 +96,9 @@ imagesRouter.get("/obtener", async (req, res) => {
 imagesRouter.get("/obtener/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
+    if (!imageId) {
+      return res.status(400).send("ID de imagen no proporcionada");
+    }
     console.log("imageId:", imageId); // Verifica la ID de la imagen
 
     const image = await ImageModel.findById(imageId);
