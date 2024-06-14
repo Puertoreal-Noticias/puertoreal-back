@@ -6,10 +6,12 @@ import fs from "fs";
 import path from "path";
 
 const eventosRouter = express.Router();
-
 eventosRouter.get("/obtener", async (req, res) => {
   try {
-    const eventos = await EventModel.find({}).sort({ fecha_publicacion: -1 });
+    const limit = parseInt(req.query.limit); // Obtén el parámetro de consulta 'limit'
+    const eventos = await EventModel.find({})
+      .sort({ fecha_publicacion: -1 })
+      .limit(limit); // Usa el límite en tu consulta
     res.status(200).json(eventos);
   } catch (err) {
     res.status(500).send(err);
