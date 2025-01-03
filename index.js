@@ -14,7 +14,7 @@ import eventosRouter from "./routes/eventos.js";
 import imagesEventRouter from "./routes/eventosImgs.js";
 dotenv.config();
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const expressApp = express();
 // Sirve imágenes estáticas desde el directorio 'uploads'
 expressApp.use("/uploads", express.static("uploads"));

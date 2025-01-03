@@ -43,14 +43,16 @@ imagesEventRouter.get("/obtener/:id", async (req, res) => {
     }
     // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
-    // Modificar la respuesta para devolver la URL de la imagen
+    // Utiliza una URL dinámica según el entorno
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
     res.status(200).json({
-      url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
+      url: `${baseUrl}/uploads/${filename}`,
     });
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
 imagesEventRouter.post(
   "/crear/:id",
   upload.single("imagen"),

@@ -42,7 +42,6 @@ imagesRouter.get("/obtener", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
 imagesRouter.get("/obtener/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
@@ -52,14 +51,36 @@ imagesRouter.get("/obtener/:id", async (req, res) => {
     }
     // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
-    // Modificar la respuesta para devolver la URL de la imagen
+    // Modificar la respuesta para devolver la URL de la imagen según el entorno
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000"; // Puedes usar una variable de entorno
     res.status(200).json({
-      url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`,
+      url: `${baseUrl}/uploads/${filename}`,
     });
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
+// imagesRouter.get("/obtener/:id", async (req, res) => {
+//   try {
+//     const imageId = req.params.id;
+//     const image = await ImageModel.findById(imageId);
+//     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+
+//     if (!image) {
+//       return res.status(404).send("Imagen no encontrada");
+//     }
+//     // Extraer el nombre del archivo de image.imagePath
+//     const filename = image.imagePath.split("\\").pop();
+//     // Modificar la respuesta para devolver la URL de la imagen
+//     res.status(200).json({
+//       // url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`, despliegue
+//       url: `http://localhost:3000/uploads/${filename}`, // Cambiado a localhost
+//     });
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
 imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
   // Obtiene la ID de la noticia de los parámetros de la ruta
   const newsId = req.params.id;
