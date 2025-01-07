@@ -12,6 +12,7 @@ import newsRouter from "./routes/noticias.js";
 import imagesRouter from "./routes/noticiasImgs.js";
 import eventosRouter from "./routes/eventos.js";
 import imagesEventRouter from "./routes/eventosImgs.js";
+import adRouter from "./routes/ad.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,7 @@ expressApp.use("/noticias", newsRouter);
 expressApp.use("/event", eventosRouter);
 expressApp.use("/news-imgs", imagesRouter);
 expressApp.use("/event-imgs", imagesEventRouter);
+expressApp.use("/anuncios", adRouter);
 
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
