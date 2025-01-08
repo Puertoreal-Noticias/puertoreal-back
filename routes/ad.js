@@ -38,10 +38,11 @@ adRouter.get("/obtener", async (req, res) => {
   }
 });
 
-// Crear un nuevo anuncio con imagen
 adRouter.post("/crear", upload.single("image"), async (req, res) => {
   const { url } = req.body;
-  const imgPath = req.file.path;
+  const imgPath = `${req.protocol}://${req.get("host")}/uploads/${
+    req.file.filename
+  }`; // Construye la URL completa
 
   const ad = new AdModel({
     url,
@@ -56,11 +57,12 @@ adRouter.post("/crear", upload.single("image"), async (req, res) => {
   }
 });
 
-// Modificar un anuncio específico por su ID
 adRouter.patch("/modificar/:id", upload.single("image"), async (req, res) => {
   const id = req.params.id;
   const { url } = req.body;
-  const imgPath = req.file ? req.file.path : req.body.imgPath;
+  const imgPath = req.file
+    ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+    : req.body.imgPath; // Construye la URL completa
 
   try {
     const ad = await AdModel.findById(id);
