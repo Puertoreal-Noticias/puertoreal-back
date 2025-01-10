@@ -29,10 +29,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Obtener todos los anuncios
+// Obtener los últimos anuncios
 adRouter.get("/obtener", async (req, res) => {
   const limit = parseInt(req.query.limit) || 0;
   try {
-    const ads = await AdModel.find({}).limit(limit);
+    const ads = await AdModel.find({}).sort({ _id: -1 }).limit(limit); // Ordenar por ID descendente y limitar
     res.status(200).json(ads);
   } catch (err) {
     res.status(500).send(err);
