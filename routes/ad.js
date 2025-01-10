@@ -30,8 +30,9 @@ const upload = multer({ storage: storage });
 
 // Obtener todos los anuncios
 adRouter.get("/obtener", async (req, res) => {
+  const limit = parseInt(req.query.limit) || 0;
   try {
-    const ads = await AdModel.find({});
+    const ads = await AdModel.find({}).limit(limit);
     res.status(200).json(ads);
   } catch (err) {
     res.status(500).send(err);
