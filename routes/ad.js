@@ -40,11 +40,11 @@ adRouter.get("/obtener", async (req, res) => {
   }
 });
 
+const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+
 adRouter.post("/crear", upload.single("image"), async (req, res) => {
   const { url } = req.body;
-  const imgPath = `${req.protocol}://${req.get("host")}/uploads/${
-    req.file.filename
-  }`; // Construye la URL completa
+  const imgPath = `${baseUrl}/uploads/${req.file.filename}`; // Usa la BASE_URL
 
   const ad = new AdModel({
     url,
