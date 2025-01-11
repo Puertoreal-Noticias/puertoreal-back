@@ -40,11 +40,9 @@ adRouter.get("/obtener", async (req, res) => {
   }
 });
 
-const baseUrl = process.env.BASE_URL || "http://localhost:3000";
-
 adRouter.post("/crear", upload.single("image"), async (req, res) => {
   const { url } = req.body;
-  const imgPath = `${baseUrl}/uploads/${req.file.filename}`; // Usa la BASE_URL
+  const imgPath = `https://puertoreal-back-production.up.railway.app/uploads/${req.file.filename}`; // URL fija del despliegue
 
   const ad = new AdModel({
     url,
@@ -63,8 +61,8 @@ adRouter.patch("/modificar/:id", upload.single("image"), async (req, res) => {
   const id = req.params.id;
   const { url } = req.body;
   const imgPath = req.file
-    ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-    : req.body.imgPath; // Construye la URL completa
+    ? `https://puertoreal-back-production.up.railway.app/uploads/${req.file.filename}`
+    : req.body.imgPath; // URL fija del despliegue
 
   try {
     const ad = await AdModel.findById(id);

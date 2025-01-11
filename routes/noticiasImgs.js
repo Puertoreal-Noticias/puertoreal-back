@@ -49,10 +49,8 @@ imagesRouter.get("/obtener/:id", async (req, res) => {
     if (!image) {
       return res.status(404).send("Imagen no encontrada");
     }
-    // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
-    // Modificar la respuesta para devolver la URL de la imagen según el entorno
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000"; // Puedes usar una variable de entorno
+    const baseUrl = "https://puertoreal-back-production.up.railway.app"; // URL fija del despliegue
     res.status(200).json({
       url: `${baseUrl}/uploads/${filename}`,
     });

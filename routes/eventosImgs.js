@@ -33,7 +33,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 imagesEventRouter.get("/obtener/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
@@ -41,10 +40,8 @@ imagesEventRouter.get("/obtener/:id", async (req, res) => {
     if (!image) {
       return res.status(404).send("Imagen no encontrada");
     }
-    // Extraer el nombre del archivo de image.imagePath
     const filename = image.imagePath.split("\\").pop();
-    // Utiliza una URL dinámica según el entorno
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const baseUrl = "https://puertoreal-back-production.up.railway.app"; // URL fija del despliegue
     res.status(200).json({
       url: `${baseUrl}/uploads/${filename}`,
     });
@@ -74,8 +71,9 @@ imagesEventRouter.post(
         await evento.save();
       }
       console.log(evento);
+      const baseUrl = "https://puertoreal-back-production.up.railway.app"; // URL fija del despliegue
       res.status(200).json({
-        url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${updatedImage.imagePath}`,
+        url: `${baseUrl}/uploads/${newImage.imagePath}`,
       });
     } catch (error) {
       res.status(500).send(error);
@@ -119,7 +117,6 @@ imagesEventRouter.put(
         return res.status(404).send("Imagen no encontrada");
       }
 
-      // Elimina la imagen antigua del sistema de archivos
       const oldImagePath = path.join("uploads", image.imagePath);
       fs.unlink(oldImagePath, (err) => {
         if (err) {
@@ -129,14 +126,17 @@ imagesEventRouter.put(
         }
       });
 
-      // Actualiza la ruta de la imagen en la base de datos
       image.imagePath = req.file.filename;
       const updatedImage = await image.save();
 
-      res.status(200).send(updatedImage);
+      const baseUrl = "https://puertoreal-back-production.up.railway.app"; // URL fija del despliegue
+      res.status(200).json({
+        url: `${baseUrl}/uploads/${updatedImage.imagePath}`,
+      });
     } catch (error) {
       res.status(500).send(error);
     }
   }
 );
+
 export default imagesEventRouter;
