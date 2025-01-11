@@ -17,20 +17,34 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const expressApp = express();
+
+// Middleware CORS manual
+expressApp.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://puertoreal-noticias-front.vercel.app"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
+
+expressApp.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://puertoreal-noticias-front.vercel.app"
+        : "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
 // Sirve imágenes estáticas desde el directorio 'uploads'
 expressApp.use("/uploads", express.static("uploads"));
-
-// Configuración de CORS
-const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? "https://puertoreal-noticias-front.vercel.app"
-      : "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-};
-
-expressApp.use(cors(corsOptions));
 
 // otros middlewares...
 expressApp.use(cookieParser());
@@ -51,7 +65,7 @@ expressApp.use("/anuncios", adRouter);
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
   expressApp.listen(PORT, () => {
-    console.log(`Servidor levantado en el puerto, ${PORT}`);
+    console.log(`Servidor levantado en el puerto ${PORT}`);
   });
 };
 bootstrap();
