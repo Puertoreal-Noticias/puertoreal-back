@@ -1,7 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import cors from "cors"; // Asegúrate de añadir esta línea
+import cors from "cors";
 
 import accountRouter from "./routes/account.js";
 import authRouter from "./routes/auth.js";
@@ -20,7 +20,17 @@ const expressApp = express();
 // Sirve imágenes estáticas desde el directorio 'uploads'
 expressApp.use("/uploads", express.static("uploads"));
 
-expressApp.use(cors()); // Añade esto para permitir solicitudes CORS desde cualquier origen
+// Configuración de CORS
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? "https://puertoreal-noticias-front.vercel.app"
+      : "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+
+expressApp.use(cors(corsOptions));
 
 // otros middlewares...
 expressApp.use(cookieParser());
