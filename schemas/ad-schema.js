@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const AdSchema = new mongoose.Schema({
   url: {
     type: String,
-    required: true,
+    required: false,
   },
   imgPath: {
     type: String,
