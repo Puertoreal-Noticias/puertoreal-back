@@ -42,6 +42,7 @@ imagesRouter.get("/obtener", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 imagesRouter.get("/obtener/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
@@ -49,78 +50,46 @@ imagesRouter.get("/obtener/:id", async (req, res) => {
     if (!image) {
       return res.status(404).send("Imagen no encontrada");
     }
-    const filename = image.imagePath.split("\\").pop();
-    const baseUrl = "https://puertoreal-back-production.up.railway.app"; // URL fija del despliegue
+
+    const baseUrl = "https://puertoreal-back-production.up.railway.app";
     res.status(200).json({
-      url: `${baseUrl}/uploads/${filename}`,
+      url: `${baseUrl}/uploads/${image.imagePath}`, // ✅ Usa imagePath directamente
     });
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
-// imagesRouter.get("/obtener/:id", async (req, res) => {
-//   try {
-//     const imageId = req.params.id;
-//     const image = await ImageModel.findById(imageId);
-//     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-
-//     if (!image) {
-//       return res.status(404).send("Imagen no encontrada");
-//     }
-//     // Extraer el nombre del archivo de image.imagePath
-//     const filename = image.imagePath.split("\\").pop();
-//     // Modificar la respuesta para devolver la URL de la imagen
-//     res.status(200).json({
-//       // url: `https://puertorealnoticias-back-production.up.railway.app/uploads/${filename}`, despliegue
-//       url: `http://localhost:3000/uploads/${filename}`, // Cambiado a localhost
-//     });
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
 imagesRouter.post("/upload/:id", upload.single("imagen"), async (req, res) => {
-  // Obtiene la ID de la noticia de los parámetros de la ruta
   const newsId = req.params.id;
-  console.log("newsId:", newsId); // Verifica la ID de la noticia
+  console.log("newsId:", newsId);
 
   try {
-    // Busca la noticia con la ID especificada
     const news = await NewsModel.findById(newsId);
-
-    // Si la noticia no existe, retorna un error
     if (!news) {
       return res.status(404).send("Noticia no encontrada");
     }
 
-    console.log("req.file.path:", req.file.path); // Verifica la ruta de la imagen
+    console.log("req.file.path:", req.file.path);
 
-    // Crea un nuevo documento ImageModel con los detalles de la imagen
     const image = new ImageModel({
-      imagePath: req.file.filename,
+      imagePath: req.file.filename, // ✅ Guarda solo el nombre del archivo
       newsId: newsId,
     });
 
-    // Guarda la nueva imagen en la base de datos
     const savedImage = await image.save();
-    console.log("savedImage:", savedImage); // Verifica la imagen guardada
+    console.log("savedImage:", savedImage);
 
-    // Si la noticia no tiene una imagen principal, establece la nueva imagen como la imagen principal
     if (!news.imagenPrincipal) {
       news.imagenPrincipal = savedImage._id;
-      await news.save();
     } else {
-      // Si la noticia ya tiene una imagen principal, agrega la nueva imagen al array de imagenes
       news.imagenes.push(savedImage._id);
-      await news.save();
     }
+    await news.save();
 
-    console.log("news:", news); // Verifica la noticia guardada
-
-    // Envía los detalles de la nueva imagen guardada en la respuesta
     res.status(201).json(savedImage);
   } catch (error) {
-    console.error("Error:", error); // Captura y registra cualquier error
+    console.error("Error:", error);
     res.status(500).send(error);
   }
 });
@@ -136,13 +105,13 @@ imagesRouter.post(
       if (!news) {
         return res.status(404).send("Noticia no encontrada");
       }
+
       const image = new ImageModel({
-        imagePath: req.file.path,
+        imagePath: req.file.filename, // ✅ Guarda solo el nombre del archivo
         newsId: newsId,
       });
-      const savedImage = await image.save();
 
-      // Añadir la imagen a la lista de imágenes de la noticia
+      const savedImage = await image.save();
       news.imagenes.push(savedImage._id);
       await news.save();
 
@@ -153,29 +122,31 @@ imagesRouter.post(
     }
   }
 );
-// Eliminar imagen relacionada a una noticia
-// Eliminar imagen relacionada a una noticia
+
 // Eliminar imagen relacionada a una noticia
 imagesRouter.delete(
   "/delete-img-relacionada/:newsId/:imgId",
   async (req, res) => {
     try {
-      const newsId = req.params.newsId;
-      const imgId = req.params.imgId;
+      const { newsId, imgId } = req.params;
       const image = await ImageModel.findById(imgId);
       if (!image) {
         return res.status(404).send("Imagen no encontrada");
       }
+
       const news = await NewsModel.findById(newsId);
       if (!news) {
         return res.status(404).send("Noticia no encontrada");
       }
+
       news.imagenes = news.imagenes.filter((id) => id.toString() !== imgId);
       await news.save();
+
       const result = await ImageModel.deleteOne({ _id: imgId });
       if (result.deletedCount === 0) {
         return res.status(404).send("Imagen no encontrada");
       }
+
       res.status(200).send("Imagen eliminada con éxito");
     } catch (error) {
       console.log(error);
@@ -183,6 +154,7 @@ imagesRouter.delete(
     }
   }
 );
+
 imagesRouter.delete("/delete/:id", async (req, res) => {
   try {
     const imageId = req.params.id;
@@ -197,14 +169,13 @@ imagesRouter.delete("/delete/:id", async (req, res) => {
   }
 });
 
-// Actualizar
-
+// Actualizar imagen
 imagesRouter.put(
   "/actualizar/:id",
   upload.single("imagen"),
   async (req, res) => {
     const noticiaId = req.params.id;
-    console.log(noticiaId);
+
     try {
       const noticia = await NewsModel.findById(noticiaId);
       if (!noticia) {
@@ -213,11 +184,11 @@ imagesRouter.put(
 
       const image = await ImageModel.findOne({ newsId: noticiaId });
       if (!image) {
-        return res.status(404).send("Imagen no encontradaaaaa");
+        return res.status(404).send("Imagen no encontrada");
       }
 
       // Elimina la imagen antigua del sistema de archivos
-      const oldImagePath = image.imagePath;
+      const oldImagePath = path.join(uploadFolder, image.imagePath); // ✅ Ruta correcta
       fs.unlink(oldImagePath, (err) => {
         if (err) {
           console.error(`Error al eliminar el archivo de imagen: ${err}`);
@@ -236,6 +207,5 @@ imagesRouter.put(
     }
   }
 );
-// Imagen especifica
 
 export default imagesRouter;

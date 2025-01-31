@@ -82,47 +82,6 @@ adRouter.patch("/modificar/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-// adRouter.post("/crear", upload.single("image"), async (req, res) => {
-//   const { url } = req.body;
-//   const imgPath = `https://puertoreal-back-production.up.railway.app/uploads/${req.file.filename}`; // URL fija del despliegue
-
-//   const ad = new AdModel({
-//     url,
-//     imgPath,
-//   });
-
-//   try {
-//     await ad.save();
-//     res.status(201).json(ad);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// });
-
-// adRouter.patch("/modificar/:id", upload.single("image"), async (req, res) => {
-//   const id = req.params.id;
-//   const { url } = req.body;
-//   const imgPath = req.file
-//     ? `https://puertoreal-back-production.up.railway.app/uploads/${req.file.filename}`
-//     : req.body.imgPath; // URL fija del despliegue
-
-//   try {
-//     const ad = await AdModel.findById(id);
-
-//     if (!ad) {
-//       return res.status(404).send("Anuncio no encontrado");
-//     }
-
-//     ad.url = url;
-//     ad.imgPath = imgPath;
-
-//     await ad.save();
-//     res.status(200).json(ad);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// });
-
 // Eliminar un anuncio específico por su ID
 adRouter.delete("/eliminar/:id", async (req, res) => {
   const id = req.params.id;
